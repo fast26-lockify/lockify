@@ -290,8 +290,8 @@ static int dlm_scand(void *data)
 			struct list_head *pos, *tmp;
 			list_for_each_safe(pos, tmp, &ls->ls_waiters) {
 				lkb = list_entry(pos, struct dlm_lkb, lkb_wait_reply);
-				if (lkb->lkb_wait_type == DLM_MSG_NOTIFY &&
-					time_after(jiffies, lkb->lkb_wait_timestamp + NOTIFY_TIMEOUT_SECS * HZ)) {
+				if (unlikely(lkb->lkb_wait_type == DLM_MSG_NOTIFY &&
+					time_after(jiffies, lkb->lkb_wait_timestamp + NOTIFY_TIMEOUT_SECS * HZ))) {
 					resend_notify(lkb);
 					lkb->lkb_wait_timestamp = jiffies;
 				}

@@ -3205,13 +3205,18 @@ static int unlock_lock(struct dlm_ls *ls, struct dlm_lkb *lkb,
 
 	r = lkb->lkb_resource;
 
+	// @pty
+	while (test_bit(DLM_IFL_NOTIFY_PENDING_BIT, &lkb->lkb_iflags)) {
+		usleep_range(1000, 1500);
+	}
+
 	hold_rsb(r);
 	lock_rsb(r);
 
 	error = validate_unlock_args(lkb, args);
 	if (error)
 		goto out;
-
+	
 	error = _unlock_lock(r, lkb);
  out:
 	unlock_rsb(r);
@@ -3608,10 +3613,14 @@ static int send_notify(struct dlm_rsb *r, struct dlm_lkb *lkb)
 
 	to_nodeid = dlm_dir_nodeid(r);
 
-// @pty
+
+	set_bit(DLM_IFL_NOTIFY_PENDING_BIT, &lkb->lkb_iflags);
+	
 	error = add_to_waiters(lkb, DLM_MSG_NOTIFY, to_nodeid);
-	if (error)
+	if (error) {
+		clear_bit(DLM_IFL_NOTIFY_PENDING_BIT, &lkb->lkb_iflags);
 		return error;
+	}
 
 	error = create_message(r, NULL, to_nodeid, DLM_MSG_NOTIFY, &ms, &mh,
 			       GFP_NOFS);
@@ -3626,7 +3635,7 @@ static int send_notify(struct dlm_rsb *r, struct dlm_lkb *lkb)
 	return 0;
 
  fail:
-	// @pty
+	clear_bit(DLM_IFL_NOTIFY_PENDING_BIT, &lkb->lkb_iflags);
 	remove_from_waiters(lkb, DLM_MSG_NOTIFY);	
 	return error;
 }
@@ -4821,7 +4830,6 @@ static void receive_notify(struct dlm_ls *ls, const struct dlm_message *ms)
 	error = dlm_master_notify(ls, from_nodeid, ms->m_extra, len,
 				  &ret_nodeid);
 
-	// @pty
 	send_notify_reply(ls, ms, ret_nodeid, error);
 }
 
@@ -4839,10 +4847,12 @@ static void receive_notify_reply(struct dlm_ls *ls,
 		return;
 	}
 
-	error = remove_from_waiters(lkb, DLM_MSG_NOTIFY_REPLY);
-	if (error)
-		log_error(ls, "remove_from_waiters failed");
+	clear_bit(DLM_IFL_NOTIFY_PENDING_BIT, &lkb->lkb_iflags);
 
+	error = remove_from_waiters(lkb, DLM_MSG_NOTIFY_REPLY);
+	if (error) 
+		log_error(ls, "remove_from_waiters failed");
+	
 	dlm_put_lkb(lkb);
 }
 

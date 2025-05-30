@@ -1,0 +1,5 @@
+linux-6.6.23/.git
+linux-6.6.23/arch/x86/boot/bzImage
+linux-6.6.23/*.o
+linux-6.6.23/modules.builtin*
+linux-6.6.23/System.map

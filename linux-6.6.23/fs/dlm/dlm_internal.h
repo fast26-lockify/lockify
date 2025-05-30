@@ -205,6 +205,8 @@ struct dlm_args {
 #define DLM_IFL_ENDOFLIFE_BIT	21
 #define DLM_IFL_DEADLOCK_CANCEL_BIT 24
 #define DLM_IFL_CB_PENDING_BIT	25
+// @pty
+#define DLM_IFL_NOTIFY_PENDING_BIT    22  
 #define __DLM_IFL_MAX_BIT	DLM_IFL_CB_PENDING_BIT
 
 /* lkb_dflags */
