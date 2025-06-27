@@ -1,3 +1,11 @@
+📌 **Note:**  
+This artifact has been moved to the final repository:  
+👉 https://github.com/skku-syslab/lockify  
+
+Please refer to the above repository for the latest version and updates.  
+**This document is no longer maintained here.**
+
+
 # Understanding Linux Distributed Lock Management Overheads in Shared Storage (FAST '26)
 
 Lockify is a novel distributed lock manager (DLM) for shared-disk file systems that reduces lock acquisition latency in the Linux kernel. It avoids unnecessary remote communication through self-owner notifications and asynchronous ownership management. Implemented in the Linux kernel and evaluated on GFS2 and OCFS2, Lockify achieves up to 6.4× higher throughput than the default DLM, even under low-contention workloads.
